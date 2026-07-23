@@ -1,0 +1,54 @@
+<mujoco model="linear_moving_platoon">
+    <compiler angle="radian"/>
+    
+    <option timestep="0.002" integrator="RK4" gravity="0 0 -9.81"/>
+
+    <asset>
+        <texture type="skybox" builtin="gradient" rgb1="0.2 0.3 0.4" rgb2="0 0 0" width="512" height="512"/>
+        <texture name="grid" type="2d" builtin="checker" rgb1="0.15 0.15 0.15" rgb2="0.3 0.3 0.3" width="300" height="300"/>
+        <material name="grid_mat" texture="grid" texrepeat="50 5" texuniform="true" reflectance="0.1"/>
+    </asset>
+
+    <worldbody>
+        <light pos="0 0 6" dir="0 0 -1" directional="true" castshadow="false"/>
+        
+        <!-- Extended Ground Runway (100m total length) -->
+        <geom name="ground" type="plane" size="50 5 0.1" material="grid_mat"/>
+
+        <!-- Extended Guide Rail (100m total length) -->
+        <geom name="rail" type="cylinder" pos="0 0 0.2" size="0.015 50" euler="0 1.57079632679 0" rgba="0.7 0.7 0.7 1"/>
+
+        <!-- 
+            BUNCHED UP INITIAL POSITIONS:
+            Cars start merely 0.5m apart. 
+            The LQR will force them to spread out to the target distance while moving forward.
+        -->
+        <body name="car1" pos="0 0 0.2">
+            <joint name="q1" type="slide" axis="1 0 0" damping="0" frictionloss="0"/>
+            <geom name="car1_geom" type="box" size="0.12 0.16 0.1" mass="1.0" contype="0" conaffinity="0" rgba="0.9 0.2 0.2 1"/>
+        </body>
+
+        <body name="car2" pos="-0.5 0 0.2">
+            <joint name="q2" type="slide" axis="1 0 0" damping="0" frictionloss="0"/>
+            <geom name="car2_geom" type="box" size="0.12 0.16 0.1" mass="1.2" contype="0" conaffinity="0" rgba="0.2 0.9 0.2 1"/>
+        </body>
+
+        <body name="car3" pos="-1.0 0 0.2">
+            <joint name="q3" type="slide" axis="1 0 0" damping="0" frictionloss="0"/>
+            <geom name="car3_geom" type="box" size="0.12 0.16 0.1" mass="1.4" contype="0" conaffinity="0" rgba="0.2 0.2 0.9 1"/>
+        </body>
+
+        <body name="car4" pos="-1.5 0 0.2">
+            <joint name="q4" type="slide" axis="1 0 0" damping="0" frictionloss="0"/>
+            <geom name="car4_geom" type="box" size="0.12 0.16 0.1" mass="1.6" contype="0" conaffinity="0" rgba="0.9 0.9 0.2 1"/>
+        </body>
+    </worldbody>
+
+    <actuator>
+        <!-- Increased control bounds to accommodate accelerating to a cruising speed -->
+        <motor name="m1" joint="q1" gear="1" ctrllimited="true" ctrlrange="-300 300"/>
+        <motor name="m2" joint="q2" gear="1" ctrllimited="true" ctrlrange="-300 300"/>
+        <motor name="m3" joint="q3" gear="1" ctrllimited="true" ctrlrange="-300 300"/>
+        <motor name="m4" joint="q4" gear="1" ctrllimited="true" ctrlrange="-300 300"/>
+    </actuator>
+</mujoco>
